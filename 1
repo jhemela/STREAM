@@ -7,8 +7,7 @@ st.__version__
 
 
 # read in cell labels
-adata=st.read(file_name='./filtered_gene_bc_matrices/hg19/matrix.mtx',file_format='mtx')
-
+adata=st.read(file_name='./STREAM/EXP1/DMSO/matrix.mtx',file_format='mtx')
 
 # if cell label file or cell color file is not provided, please simply run:
 st.add_cell_labels(adata,file_name='./genes.tsv')
