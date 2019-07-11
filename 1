@@ -3,19 +3,17 @@
 import stream as st
 st.__version__
 
-# read in cell labels and label color¶
-adata=st.read(file_name='./filtered_gene_bc_matrices/hg19/matrix.mtx',file_format='mtx')
-# if cell label file or cell color file is not provided, please simply run:
-# 'unknown' will be added as the default label for all cells
-st.add_cell_labels(adata)
 
-# random color will be generated for each cell label
+# read in cell labels
+adata=st.read(file_name='./filtered_gene_bc_matrices/hg19/matrix.mtx',file_format='mtx')
+
+
+# if cell label file or cell color file is not provided, please simply run:
+st.add_cell_labels(adata)
 st.add_cell_colors(adata)
 
-st.add_cell_labels(adata,file_name='./cell_label.tsv.gz')
-st.add_cell_colors(adata,file_name='./cell_label_color.tsv.gz')
+st.add_cell_labels(adata,file_name='./genes.tsv')
 
-# other useful preprocessing steps when dealing with raw-count data
 # Normalize gene expression based on library size
 st.normalize_per_cell(adata)
 
@@ -29,34 +27,33 @@ st.remove_mt_genes(adata)
 st.filter_cells(adata)
 
 # Filter out genes
-st.filter_genes(adata,min_num_cells = max(5,int(round(adata.shape[0]*0.001))),
-                min_pct_cells = None,expr_cutoff = 1)
+st.filter_genes(adata,min_num_cells = max(5,int(round(adata.shape[0]*0.001))),min_pct_cells = None,expr_cutoff = 1)
                 
 # check parameters
 st.select_variable_genes?
 
 # Please check if the blue curve fits the points well.
 # If not, try to lower the parameter 'loess_frac' (By default, loess_frac=0.1) until the blue curve fits well.
-e.g. st.select_variable_genes(adata,loess_frac=0.01)
+st.select_variable_genes(adata,loess_frac=0.01)
 
 st.select_variable_genes(adata)
 
-
 # check parameters
-st.dimension_reduction?
+st.dimension_reduction
 
 # Tips:
 # by default n_components =3
 # For biological process with simple bifurcation or linear trajectory, two components would be recommended
-# e.g, st.dimension_reduction(adata,n_components =2)
+st.dimension_reduction(adata,n_components =2)
 
 # Several alternative dimension reduction methods are also supported, se(spectral embedding), umap, pca.
 # by default, method ='mlle'.
 
 # For large dataset, se(Spectral Embedding) works faster than MLLE while preserving the similar compact structure to MLLE.
-# e.g. st.dimension_reduction(adata,method ='se')
+st.dimension_reduction(adata,method ='se')
+
 # For large dataset, lowering the percentage of neighbors (nb_pct=0.1 by default) will speed up this step
-# e.g, st.dimension_reduction(adata,nb_pct =0.01)
+st.dimension_reduction(adata,nb_pct =0.01)
 st.dimension_reduction(adata)
 st.plot_dimension_reduction(adata)
 
@@ -66,7 +63,6 @@ st.plot_visualization_2D?
 # Tips:
 # Before the downstream elastic principal graph learning, it is important to visualize the top components in 2D plane with UMAP (by default) or tSNE(st.plot_visualization_2D(adata,method='tsne')) to confirm the existence of meaningful biological trajectory pattern
 st.plot_visualization_2D(adata)
-
 
 # check parameters
 st.seed_elastic_principal_graph?
