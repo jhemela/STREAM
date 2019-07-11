@@ -49,3 +49,108 @@ e.g. st.select_variable_genes(adata,loess_frac=0.01)
 
 In [7]:
 st.select_variable_genes(adata)
+
+
+check parameters
+st.dimension_reduction?
+
+Tips:
+
+by default n_components =3
+For biological process with simple bifurcation or linear trajectory, two components would be recommended
+e.g, st.dimension_reduction(adata,n_components =2)
+
+Several alternative dimension reduction methods are also supported, se(spectral embedding), umap, pca.
+by default, method ='mlle'.
+
+For large dataset, se(Spectral Embedding) works faster than MLLE while preserving the similar compact structure to MLLE.
+e.g. st.dimension_reduction(adata,method ='se')
+For large dataset, lowering the percentage of neighbors (nb_pct=0.1 by default) will speed up this step
+e.g, st.dimension_reduction(adata,nb_pct =0.01)
+In [8]:
+st.dimension_reduction(adata)
+feature var_genes is being used ...
+8 cpus are being used ...
+In [9]:
+st.plot_dimension_reduction(adata)
+
+check parameters
+st.plot_visualization_2D?
+
+Tips:
+
+Before the downstream elastic principal graph learning, it is important to visualize the top components in 2D plane with UMAP (by default) or tSNE(st.plot_visualization_2D(adata,method='tsne')) to confirm the existence of meaningful biological trajectory pattern
+
+In [10]:
+st.plot_visualization_2D(adata)
+
+
+check parameters
+st.seed_elastic_principal_graph?
+
+Tips:
+
+To better scale up STREAM to large datasets, since version 0.3.8, the default clustering method has been changed from 'ap' (affinity propagation) to 'kmeans'. Users can specify clustering = 'ap' to reproduce the analyses in STREAM paper:
+i.e. st.seed_elastic_principal_graph(adata,clustering='ap')
+
+If cells form a big bulk in MLLE space, 'ap' may generate too many branches.
+In that case, try clustering = 'kmeans' or clustering = 'sc' to avoid a too complex initial strcuture
+
+For noisy dataset, spectral clustering is proved to work better to get rid of noisy branches
+e.g. st.seed_elastic_principal_graph(adata,clustering='sc',n_clusters=10)
+
+In [11]:
+st.seed_elastic_principal_graph(adata)
+
+In [12]:
+st.plot_branches(adata)
+st.plot_branches_with_cells(adata)
+
+check parameters
+st.elastic_principal_graph?
+
+Tips:
+
+Increase the parameter 'epg_alpha' will help control spurious branches(by default epg_alpha=0.02)
+e.g. st.elastic_principal_graph(adata,epg_alpha=0.03)
+Add 'epg_trimmingradius' will help get rid of noisy points (by defalut epg_trimmingradius=Inf)
+e.g. st.elastic_principal_graph(adata,epg_trimmingradius=0.1)
+In [13]:
+st.elastic_principal_graph(adata)
+
+st.plot_branches(adata)
+st.plot_branches_with_cells(adata)
+
+
+Tips:
+
+Add 'epg_trimmingradius' will help get rid of noisy points (by defalut epg_trimmingradius=Inf)
+e.g. st.optimize_branching(adata,epg_trimmingradius=0.1)
+In [15]:
+### optional step
+st.optimize_branching(adata)
+st.plot_branches(adata)
+st.plot_branches_with_cells(adata)
+
+Other optional steps:
+
+Prune branches:
+st.prune_elastic_principal_graph?
+st.prune_elastic_principal_graph(adata)
+Shift branching node:
+st.shift_branching?
+st.shift_branching(adata)
+In [ ]:
+
+check parameters
+st.extend_elastic_principal_graph?
+
+Tips:
+
+Add 'epg_trimmingradius' will help get rid of noisy points (by defalut epg_trimmingradius=Inf)
+e.g. st.extend_elastic_principal_graph(adata,epg_trimmingradius=0.1)
+In [16]:
+###Extend leaf branch to reach further cells 
+st.extend_elastic_principal_graph(adata)
+st.plot_branches(adata)
+st.plot_branches_with_cells(adata)
