@@ -1,3 +1,5 @@
+# edited from https://github.com/pinellolab/STREAM/blob/master/tutorial/1.STREAM_scRNA-seq.ipynb
+
 # setup object
 'exec(%matplotlib inline)'
 import stream as st
@@ -9,28 +11,32 @@ adata=st.read(file_name='./filtered_gene_bc_matrices/hg19/matrix.mtx',file_forma
 
 
 # if cell label file or cell color file is not provided, please simply run:
-st.add_cell_labels(adata)
+st.add_cell_labels(adata,file_name='./genes.tsv')
 st.add_cell_colors(adata)
 
-st.add_cell_labels(adata,file_name='./genes.tsv')
 
 # Normalize gene expression based on library size
 st.normalize_per_cell(adata)
 
+
 # Logarithmize gene expression
 st.log_transform(adata)
+
 
 # Remove mitochondrial genes
 st.remove_mt_genes(adata)
 
+
 # Filter out cells
 st.filter_cells(adata)
 
+
 # Filter out genes
 st.filter_genes(adata,min_num_cells = max(5,int(round(adata.shape[0]*0.001))),min_pct_cells = None,expr_cutoff = 1)
-                
+               
+               
 # check parameters
-st.select_variable_genes?
+st.select_variable_genes
 
 # Please check if the blue curve fits the points well.
 # If not, try to lower the parameter 'loess_frac' (By default, loess_frac=0.1) until the blue curve fits well.
@@ -41,48 +47,61 @@ st.select_variable_genes(adata)
 # check parameters
 st.dimension_reduction
 
+
 # Tips:
 # by default n_components =3
 # For biological process with simple bifurcation or linear trajectory, two components would be recommended
 st.dimension_reduction(adata,n_components =2)
 
+
 # Several alternative dimension reduction methods are also supported, se(spectral embedding), umap, pca.
 # by default, method ='mlle'.
 
+
 # For large dataset, se(Spectral Embedding) works faster than MLLE while preserving the similar compact structure to MLLE.
 st.dimension_reduction(adata,method ='se')
+
 
 # For large dataset, lowering the percentage of neighbors (nb_pct=0.1 by default) will speed up this step
 st.dimension_reduction(adata,nb_pct =0.01)
 st.dimension_reduction(adata)
 st.plot_dimension_reduction(adata)
 
+
 # check parameters
-st.plot_visualization_2D?
+st.plot_visualization_2D
 
 # Tips:
+
 # Before the downstream elastic principal graph learning, it is important to visualize the top components in 2D plane with UMAP (by default) or tSNE(st.plot_visualization_2D(adata,method='tsne')) to confirm the existence of meaningful biological trajectory pattern
 st.plot_visualization_2D(adata)
 
+
 # check parameters
-st.seed_elastic_principal_graph?
+st.seed_elastic_principal_graph
+
 
 # Tips:
 # To better scale up STREAM to large datasets, since version 0.3.8, the default clustering method has been changed from 'ap' (affinity propagation) to 'kmeans'. Users can specify clustering = 'ap' to reproduce the analyses in STREAM paper:
 st.seed_elastic_principal_graph(adata,clustering='ap')
 
+
 # If cells form a big bulk in MLLE space, 'ap' may generate too many branches.
 # In that case, try clustering = 'kmeans' or clustering = 'sc' to avoid a too complex initial strcuture
+
 
 # For noisy dataset, spectral clustering is proved to work better to get rid of noisy branches
 st.seed_elastic_principal_graph(adata,clustering='sc',n_clusters=10)
 st.seed_elastic_principal_graph(adata)
 
+
 st.plot_branches(adata)
 st.plot_branches_with_cells(adata)
 
+
 # check parameters
 st.elastic_principal_graph?
+
 
 # Tips:
 # Increase the parameter 'epg_alpha' will help control spurious branches(by default epg_alpha=0.02)
@@ -99,10 +118,12 @@ st.plot_branches_with_cells(adata)
 # Add 'epg_trimmingradius' will help get rid of noisy points (by defalut epg_trimmingradius=Inf)
 st.optimize_branching(adata,epg_trimmingradius=0.1)
 
+
 ## optional step
 st.optimize_branching(adata)
 st.plot_branches(adata)
 st.plot_branches_with_cells(adata)
+
 
 ## Other optional steps:
 # Prune branches:
@@ -112,14 +133,77 @@ Shift branching node:
 st.shift_branching?
 st.shift_branching(adata)
 
+
 # check parameters
 st.extend_elastic_principal_graph?
+
 
 # Tips:
 # Add 'epg_trimmingradius' will help get rid of noisy points (by defalut epg_trimmingradius=Inf)
 st.extend_elastic_principal_graph(adata,epg_trimmingradius=0.1)
 
+
 ##Extend leaf branch to reach further cells 
 st.extend_elastic_principal_graph(adata)
 st.plot_branches(adata)
 st.plot_branches_with_cells(adata)
+st.plot_flat_tree(adata)
+
+# Validate the learned structure by visualizing the branch assignment
+st.plot_visualization_2D(adata)
+st.plot_visualization_2D(adata,color_by='branch',fig_legend_ncol=6)
+
+# check parameters
+st.subwaymap_plot
+
+# By default percentile_dist=95, to make cells more conpact around the branches, try to increase percentile_dist to beween 95 and 100
+st.subwaymap_plot(adata,root='S4',fig_legend_ncol=6)
+st.subwaymap_plot(adata,root='S4',fig_legend_ncol=6,percentile_dist=100)
+
+# check parameters
+st.stream_plot
+# By default factor_min_win=2.0, lowering it (between 1.0 and 2.0) can make smoother stream plot
+st.stream_plot(adata,root='S4',fig_legend_ncol=6,fig_size=(8,8))
+st.stream_plot(adata,root='S4',fig_legend_ncol=6,fig_size=(8,8),factor_min_win=1.2)
+
+# The order between horizontal branches from the same parent node has no meaning
+# Users can specify the order preference of nodes themselves by setting the parameter 'preference'
+st.subwaymap_plot(adata,percentile_dist=100,root='S4',fig_legend_ncol=6,preference=['S5'])
+st.subwaymap_plot(adata,percentile_dist=100,root='S4',fig_legend_ncol=6,preference=['S2','S1'])
+st.stream_plot(adata,root='S4',fig_legend_ncol=6,fig_size=(8,8),factor_min_win=1.2,preference=['S2','S1'])
+
+# Visualize genes
+st.subwaymap_plot_gene(adata,percentile_dist=100,root='S4',preference=['S2','S1'],genes=['Gata1','Car2','Epx'])
+st.stream_plot_gene(adata,root='S4',fig_size=(8,8),factor_min_win=1.2,preference=['S2','S1'],genes=['Gata1','Car2','Epx'])
+
+# Marker gene detection part is a bit time-consuming, so please make sure the struture learned from previous steps is reasonble before running any maker gene detection steps
+# Also it's not always necessary to execute all three marker gene detection parts. Running one of them might be adequate already.
+# 1.Detect marker genes for each leaf branch
+# 'preference' is only used to adjust the order of comparions (in coordance with subway_map plot and stream plot), it will not affect the final detected genes
+st.detect_leaf_genes(adata,root='S4',preference=['S2','S1'])
+adata.uns['leaf_genes_all']
+
+# 2.Detect transition gene for each branch
+st.detect_transistion_genes(adata,root='S4',preference=['S2','S1'])
+st.plot_transition_genes(adata)
+
+# 3.Detect differentially expressed genes between pairs of branches
+st.detect_de_genes(adata,root='S4',preference=['S2','S1'])
+st.plot_de_genes(adata)
+adata.obs
+
+# Additionally, STREAM can be also used to detect cell population-specific markers
+st.find_marker(adata,ident='label')
+adata.uns['markers_label_all']
+st.write(adata)
+
+# (Optional)Save web report 
+# Save the analysis result and interactively visualize it on STREAM website (http://stream.pinellolab.org/) or local STREAM_web docker image (https://github.com/pinellolab/STREAM_web)
+
+# check parameters
+st.save_web_report
+st.save_web_report(adata,fig_size=(8,8),n_genes=5,preference=['S2','S1'],factor_min_win=1.2,
+                title='Nestorowa, S. et al. 2016',
+                description='This scRNA-seq dataset contains 1656 cells and 4768 genes from mouse hematopoietic stem and progenitor cell differentiation. A single-cell resolution map of mouse hematopoietic stem and progenitor cell differentiation. Blood 128, e20-31 (2016).',
+                starting_node='S4',command_used='1.STREAM_scRNA-seq.ipynb')
+                
